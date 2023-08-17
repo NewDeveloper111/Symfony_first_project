@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Article{% endblock %}
+
+{% block body %}
+    {{ include('article/includes/_articles-nav.html.twig') }}
+    <h2>Новая статья</h2>
+
+    {{ include('article/_form.html.twig') }}
+
+    <a href="{{ path('app_article_index') }}">back to list</a>
+{% endblock %}

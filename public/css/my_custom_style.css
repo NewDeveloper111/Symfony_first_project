@@ -1,0 +1,25 @@
+/* Дополнительные стили сайта (помимо самого бутстрапа) */
+
+.form-control {
+    color: #000;
+}
+#authors-margin {
+    float: left;
+    margin: 0 .5em 0 0
+}
+option:checked {
+    background: linear-gradient(#ef7d50, #ef7d50)
+}
+.form-check-label {
+    margin: 0em 2em 1em -1.3em;
+}
+#width {
+    width: 30%;
+}
+#margin {
+    float: left;
+    margin: .4em .5em 0 0
+}
+#margin-check{
+    margin: .5em .5em 0 0
+}
