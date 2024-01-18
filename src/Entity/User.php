@@ -27,6 +27,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+    
+    public function __toString() 
+    {
+        return $this->getLogin();
+    }
 
     public function getId(): ?int
     {

@@ -27,13 +27,15 @@ class SubcategoryController extends AbstractController
     {
         $subcategory = new Subcategory();
         $form = $this->createForm(SubcategoryType::class, $subcategory);
-        $form->handleRequest($request);
+        if (null === $request->request->get('cancel')) {
+	    $form->handleRequest($request);
+	} else {
+	    return $this->redirectToRoute('app_subcategory_index', [], Response::HTTP_SEE_OTHER);
+	}
 
-        if ($form->isSubmitted() && $form->isValid()) {
-	    if (null === $request->request->get('cancel')) {
+	if ($form->isSubmitted() && $form->isValid()) {
 	        $entityManager->persist($subcategory);
 	        $entityManager->flush();
-	    }
 
 	    return $this->redirectToRoute('app_subcategory_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -56,9 +58,13 @@ class SubcategoryController extends AbstractController
     public function edit(Request $request, Subcategory $subcategory, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(SubcategoryType::class, $subcategory);
-        $form->handleRequest($request);
+        if (null === $request->request->get('cancel')) {
+	    $form->handleRequest($request);
+	} else {
+	    return $this->redirectToRoute('app_subcategory_index', [], Response::HTTP_SEE_OTHER);
+	}
 
-        if ($form->isSubmitted() && $form->isValid()) {
+	if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
             return $this->redirectToRoute('app_subcategory_index', [], Response::HTTP_SEE_OTHER);
@@ -73,7 +79,14 @@ class SubcategoryController extends AbstractController
     #[Route('/{id}', name: 'app_subcategory_delete', methods: ['POST'])]
     public function delete(Request $request, Subcategory $subcategory, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$subcategory->getId(), $request->request->get('_token'))) {
+	if ($subcategory->getArticles()->first()) {
+	    $message = 'Ошибка: подкатегория содержится в статье. Удалите статью или '
+		    . 'назначьте ей другую подкатегорию перед удалением этой подкатегории.';
+	    $this->addFlash('has_article', $message);
+	    return $this->redirectToRoute('app_article_index');	    
+	}
+	dd($subcategory->getArticles()->first());
+	if ($this->isCsrfTokenValid('delete'.$subcategory->getId(), $request->request->get('_token'))) {
             $entityManager->remove($subcategory);
             $entityManager->flush();
         }

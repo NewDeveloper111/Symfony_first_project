@@ -10,7 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+//use Symfony\Component\HttpFoundation\Session\Session;
+#[IsGranted('ROLE_ADMIN')]
 #[Route('/user')]
 class UserController extends AbstractController
 {
@@ -23,18 +26,24 @@ class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager,
+	    UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+	if (null === $request->request->get('cancel')) {
+	    $form->handleRequest($request);
+	} else {
+	    return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+	}
 
         if ($form->isSubmitted() && $form->isValid()) {
+	    $this->passwordHashing(true, $user, $passwordHasher);
             $entityManager->persist($user);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
-        }
+		$entityManager->flush();
+		
+		return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);   
+	    }	
 
         return $this->render('user/new.html.twig', [
             'user' => $user,
@@ -51,19 +60,32 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, User $user, EntityManagerInterface $entityManager,
+	    ): Response //UserPasswordHasherInterface $passwordHasher, Session $session
     {
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+	//$s = $session->get('usersdata') ?? [];
+	//$session->remove('usersdata');
+	$form = $this->createForm(UserType::class, $user, ['required' => false]);
+//	$field = $request->request->all('user')['password'] ?? true;
+//	if ($field === '') {
+//	    $form->add('password', null, ['mapped' => false]);
+//	}
+	if (null === $request->request->get('cancel')) {
+	    $form->handleRequest($request);
+	} else {
+	    return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+	}
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
-        }
+	if ($form->isSubmitted() && $form->isValid()) {
+	    //$this->passwordHashing($field, $user, $passwordHasher);
+	    $entityManager->flush();
+	    $this->addFlash('user_success', 'Изменения сохранены.');
+	    return $this->json("Успешная обработка запроса.");	    
+	}
 
         return $this->render('user/edit.html.twig', [
-            'user' => $user,
+            //'s' => $s,
+	    'user' => $user,
             'form' => $form,
         ]);
     }
@@ -77,5 +99,14 @@ class UserController extends AbstractController
         }
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+    }
+    
+    private function passwordHashing($field, $user, $passwordHasher): void
+    {
+	if ($field !== '') {
+		$plaintextPassword = $user->getPassword();
+		$hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
+		$user->setPassword($hashedPassword);
+	    }
     }
 }

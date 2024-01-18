@@ -3,9 +3,9 @@
 {% block title %}Edit Subcategory{% endblock %}
 
 {% block body %}
-    <h1>Edit Subcategory</h1>
+    <h2>Редактировать подкатегорию</h2>
 
-    {{ include('subcategory/_form.html.twig', {'button_label': 'Update'}) }}
+    {{ include('subcategory/_form.html.twig') }}
 
     <a href="{{ path('app_subcategory_index') }}">back to list</a>
 

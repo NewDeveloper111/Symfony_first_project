@@ -1,4 +1,55 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{% block javascripts %}
+    <script src="{{ asset('js/jquery-3.2.1.js') }}"></script>
+    <script src="{{ asset('js/sendPOSTData.js') }}"></script>
+{% endblock %}
+<div id="unique_error"></div>
+{{ form_start(form, { 'attr': {'id': 'form_edit' }}) }}
+{#{% for message in app.flashes('unique_error') %}
+    <div class="alert alert-danger">Ошибка: {{ message }}</div>
+{% endfor %}#}
+{% for message in app.flashes('unique_login') %} {#|slice(0, 1)#}
+    <div class="alert alert-danger">Ошибка: {{ message }}</div>
+{% endfor %}
+<div class="form-group">
+    {{ form_row(form.login, {'attr': {'class': 'form-control', 'placeholder': 'Логин пользователя' }}) }} {#, 'value': s.login ?? user.login ?? ''#}
+</div>
+<div class="form-group">
+    {{ form_row(form.password, {'attr': {'class': 'form-control', 'placeholder': 'Пароль пользователя', 'value': ''}, 'type': 'text'}) }} {#s.password ?? #}
+</div>
+<div class="form-group">
+    <div class="form-check">    
+        {{ form_widget(form.roles, {'checked': user.roles|length == 2, 'attr': {'class': 'form-check-input'}}) }}
+        {{ form_label(form.roles) }}
+    </div>
+</div>        
+{#<button class="btn btn-primary" id="send">{{ button_label|default('Сохранить') }}</button>#}
 {{ form_end(form) }}
+<nav class="navbar-expand">
+    <ul class="navbar-nav">{#app.request.request|json_encode()#}
+        <button class="btn btn-primary" id="send" data-route="{{ app.request.getPathInfo() }}">{{ button_label|default('Сохранить') }}</button>
+        {{ form_start(form, { 'attr': {'id': 'form_cancel' }}) }}
+        <button class="btn" name="cancel">{{ button_label|default('Отмена') }}</button>
+        {{ form_end(form) }}        
+    </ul>
+</nav>
+{#<form name="user" method="post">
+<div class="form-group">
+    <label for="user_login">Логин</label>
+    <input type="text" id="user_login" name="user[login]" maxlength="180" class="form-control" placeholder="Логин пользователя" value="{{ s.login ?? user.login ?? '' }}">
+</div>
+<div class="form-group">
+    <label for="user_password">Пароль</label>
+    <input type="text" id="user_password" name="user[password]" class="form-control" placeholder="Пароль пользователя" value="{{ s.password ?? '' }}">
+</div>
+<div class="form-group">
+    <div>
+        <div id="user_roles">
+            <input type="checkbox" id="user_roles_0" name="user[roles][]" value="ROLE_ADMIN" {% if s.roles ?? false or user.roles|length > 1 and s is empty %}checked{% endif %}>
+            <label for="user_roles_0">Администратор</label>
+        </div>
+    </div>
+</div>
+<button class="btn btn-primary">Сохранить</button>
+<button class="btn" name="cancel" formnovalidate="">Отмена</button>
+{{ form_row(form._token) }}
+</form>#}

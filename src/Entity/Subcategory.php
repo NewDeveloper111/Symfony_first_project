@@ -6,7 +6,8 @@ use App\Repository\SubcategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+#[UniqueEntity('name', message: 'подкатегория с данным названием существует.')]
 #[ORM\Entity(repositoryClass: SubcategoryRepository::class)]
 #[ORM\Table(name: 'subcategories')]
 class Subcategory
@@ -15,7 +16,7 @@ class Subcategory
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
+    
     #[ORM\Column(length: 100)]
     private ?string $name = null;
 

@@ -23,9 +23,10 @@ class ArticleType extends AbstractType
             ->add('subcategory', EntityType::class, ['label' => 'Подкатегория',
 		'class' => Subcategory::class,
 		'group_by' => fn($subcategory) => $subcategory->getCategory() ?? 'Без категории'])
-		//'group_by' => 'category'])		    
+		//'group_by' => 'category'])
+            ->add('users', null, ['label' => 'Авторы'])
             ->add('publicationDate', DateType::class, ['label' => 'Дата публикации',
-		'widget'=>'single_text'])
+		'widget' => 'single_text'])
             ->add('active', null, ['label' => 'Статья активна'])
         ;
     }

@@ -25,9 +25,6 @@ class Category
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Article::class)]
     private Collection $articles;
-    
-//    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Subcategory::class)]
-//    private Collection $subcategories;
 
     public function __construct()
     {

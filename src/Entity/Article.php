@@ -3,6 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\ArticleRepository;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -30,11 +33,22 @@ class Article
     #[ORM\Column]
     private ?bool $active = null;
 
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'articles')]
     private ?Category $category = null;
 
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'articles')]
     private ?Subcategory $subcategory = null;
+   
+    #[MaxDepth(1)]
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    private Collection $users;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -121,6 +135,30 @@ class Article
     public function setSubcategory(?Subcategory $subcategory): static
     {
         $this->subcategory = $subcategory;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        $this->users->removeElement($user);
 
         return $this;
     }
